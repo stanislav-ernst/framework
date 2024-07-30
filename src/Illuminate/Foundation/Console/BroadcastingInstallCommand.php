@@ -47,7 +47,7 @@ class BroadcastingInstallCommand extends Command
         if (! file_exists($broadcastingRoutesPath = $this->laravel->basePath('routes/channels.php')) || $this->option('force')) {
             $this->components->info("Published 'channels' route file.");
 
-            copy(__DIR__.'/stubs/broadcasting-routes.stub', $broadcastingRoutesPath);
+            copy($this->resolveStubPath('/stubs/broadcasting-routes.stub'), $broadcastingRoutesPath);
         }
 
         $this->uncommentChannelsRoutesFile();
@@ -59,7 +59,7 @@ class BroadcastingInstallCommand extends Command
                 mkdir($directory, 0755, true);
             }
 
-            copy(__DIR__.'/stubs/echo-js.stub', $echoScriptPath);
+            copy($this->resolveStubPath('/stubs/echo-js.stub'), $echoScriptPath);
         }
 
         if (file_exists($bootstrapScriptPath = $this->laravel->resourcePath('js/bootstrap.js'))) {
@@ -70,7 +70,7 @@ class BroadcastingInstallCommand extends Command
             if (! str_contains($bootstrapScript, './echo')) {
                 file_put_contents(
                     $bootstrapScriptPath,
-                    trim($bootstrapScript.PHP_EOL.file_get_contents(__DIR__.'/stubs/echo-bootstrap-js.stub')).PHP_EOL,
+                    trim($bootstrapScript.PHP_EOL.file_get_contents($this->resolveStubPath('/stubs/echo-bootstrap-js.stub'))).PHP_EOL,
                 );
             }
         }
@@ -78,6 +78,19 @@ class BroadcastingInstallCommand extends Command
         $this->installReverb();
 
         $this->installNodeDependencies();
+    }
+
+    /**
+     * Resolve the fully-qualified path to the stub.
+     *
+     * @param  string  $stub
+     * @return string
+     */
+    protected function resolveStubPath($stub)
+    {
+        return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
+            ? $customPath
+            : __DIR__.$stub;
     }
 
     /**

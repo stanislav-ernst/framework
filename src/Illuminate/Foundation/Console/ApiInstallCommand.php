@@ -50,7 +50,7 @@ class ApiInstallCommand extends Command
         } else {
             $this->components->info('Published API routes file.');
 
-            copy(__DIR__.'/stubs/api-routes.stub', $apiRoutesPath);
+            copy($this->resolveStubPath('/stubs/api-routes.stub'), $apiRoutesPath);
 
             if ($this->option('passport')) {
                 (new Filesystem)->replaceInFile(
@@ -81,6 +81,19 @@ class ApiInstallCommand extends Command
 
             $this->components->info('API scaffolding installed. Please add the [Laravel\Sanctum\HasApiTokens] trait to your User model.');
         }
+    }
+
+    /**
+     * Resolve the fully-qualified path to the stub.
+     *
+     * @param  string  $stub
+     * @return string
+     */
+    protected function resolveStubPath($stub)
+    {
+        return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
+            ? $customPath
+            : __DIR__.$stub;
     }
 
     /**
